@@ -37,7 +37,7 @@ if defined?(Sprockets::StaticCompiler)
 
           if @source_digests[logical_path] != @current_source_digests[logical_path] ||
              !(current_digest_file && File.exists?("#{@target}/#{current_digest_file}")) ||
-             logical_path =~ /elm$/
+             should_force_recompile_on_elm?(asset)
 
             if asset = env.find_asset(logical_path)
               digest_path = write_asset(asset)
@@ -89,6 +89,18 @@ if defined?(Sprockets::StaticCompiler)
 
       def encode_hash_as_utf8(hash)
         Hash[*hash.map {|k,v| [k.encode("UTF-8"), v.encode("UTF-8")] }.flatten]
+      end
+
+      def should_force_recompile_on_elm?(asset)
+        asset_with_dependencies(asset).any? do |asset|
+          asset.pathname.extname == '.elm'
+        end
+      end
+
+      def asset_with_dependencies(asset)
+        [asset] + asset.dependencies.flat_map do |dependency|
+          asset_with_dependencies dependency
+        end
       end
     end
   end
