@@ -36,7 +36,8 @@ if defined?(Sprockets::StaticCompiler)
           current_digest_file = @current_digests[logical_path]
 
           if @source_digests[logical_path] != @current_source_digests[logical_path] ||
-             !(current_digest_file && File.exists?("#{@target}/#{current_digest_file}"))
+             !(current_digest_file && File.exists?("#{@target}/#{current_digest_file}")) ||
+             logical_path =~ /elm$/
 
             if asset = env.find_asset(logical_path)
               digest_path = write_asset(asset)
